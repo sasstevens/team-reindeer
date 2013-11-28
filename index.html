@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<!--[if IE 7]>
+<html class="ie ie7" lang="en-US">
+<![endif]-->
+<!--[if IE 8]>
+<html class="ie ie8" lang="en-US">
+<![endif]-->
+<!--[if !(IE 7) | !(IE 8)  ]><!-->
+<html lang="en-US">
+<!--<![endif]-->
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-width=device-width">
+	
+<!--
+	<meta property="og:image" content="http://cdn1.umg3.net/wp3/jacktopping-ww-cdn/album_cover.jpg"/>
+	<meta property="og:title" content="Jack Topping | Wonderful World"/>
+	<meta property="og:description" content="I've just visited Jack Topping's Wonderful World memory map. Come have a look and join Jack's journey."/>
+	<meta property="og:site_name" content="Jack Topping | Wonderful World"/>
+	<meta property="og:type" content="website"/>
+-->
+
+	<title>Team Reindeer - Destroying the World!</title>
+	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<link rel="pingback" href="http://jacktopping-ww.dev-umg-uk-wp3.com/xmlrpc.php">
+	<link rel='stylesheet' href='style.css' type='text/css' media='all' />
+   
+
+</head>
+
+<body class="home blog custom-font-enabled single-author">
+	<div id="page" class="hfeed site">
+		<!--
+<header id="masthead" class="site-header" role="banner">
+		</header>
+-->
+
+		<div id="main" class="site-main">
+
+	<div id="primary" class="content-area">
+		<div id="content" class="site-content" role="main">
+			
+						
+   			<div id="map-canvas"></div>
+	
+			
+		
+			
+			<div id="submit_details"  class="map_overlay_wrapper">
+				<div class="map_overlay">
+					<a href="#" class="btn_close">x</a>
+					<h2>Share a memory</h2>
+					<form method="post" enctype="multipart/form-data">
+						<label for="user_name">Name<span class="feedback">*</span></label> <input type="text" name="user_name" id="user_name" />
+						<label for="user_title">Title<span class="feedback">*</span></label> <input type="text" name="user_title" id="user_title" />
+						<label for="user_story">Story<span class="feedback">*</span></label> <textarea name="user_story" id="user_story" placeholder="Max 500 characters"></textarea>
+						<label for="user_date">Date</label> <input type="text" name="user_date" id="user_date" placeholder="DD/MM/YYYY" />
+						<label for="user_location">Location<span class="feedback">*</span></label> <input type="text" name="user_location" id="user_location" />
+						<label for="user_image">Photo</label> <input type="file" name="user_image" id="user_image" />
+						<span class="spacer"></span>
+						<p class="feedback">*Required</p>
+						<input type="submit" class="submitfield" value="Next" />
+						<span class="spacer"></span>						
+					</form>
+					<div class="loading">
+						We're processing this, fear not!
+						<div class="progress">
+					        <div class="bar"></div >
+					        <div class="percent">0%</div >
+					    </div>
+					    
+					</div>
+				    
+				    <div id="status"></div>
+				</div>
+			</div>
+			
+			<div id="place_pin" class="map_overlay_wrapper">
+				<div class="map_overlay">
+					<h2>Place your pin</h2>
+					<p>Drag the pin with your mouse to place, and then click 'Done'.</p>
+					
+					<form id="final_form" method="post" enctype="multipart/form-data">
+						<input type="submit" class="submitfield" value="Done" />
+						<span class="spacer"></span>						
+					</form>
+				</div>
+			</div>
+			
+			<div id="story_submitted" class="map_overlay_wrapper">
+				<div class="map_overlay">
+					<a href="#" class="btn_close">x</a>
+					<p>Your memory request is currently being verified by moderators.</p>
+					<p>Press the share buttons below to encourage your friends to add theirs!</p>
+					
+					<a href="#" class="submitfield btn_close_submit">Done</a>
+					<div class="share_box">
+						<p class="share_text">Share:</p>
+						<a href="#" class="custom_twitter_share">Tweet this</a>
+						<a href="#" class="custom_fb_share">Share on Facebook</a>
+						<span class="spacer"></span>
+					</div>
+					<div class="spacer"></div>
+				</div>
+			</div>
+			
+			<div id="user_story_holder" class="map_overlay_wrapper">
+				<div class="map_overlay">
+					<a href="#" class="btn_close_pin">x</a>
+					<h2 class="date"></h2>
+					<h2 class="title"></h2>
+					<h2 class="location">Location: <span></span></h2>
+					<h2 class="user">Memory holder: <span></span></h2>
+					<div class="story_preview_holder">
+						<div class="story_preview">
+						</div>
+						<a href="#" class="btn_read_more">read more…</a>
+					</div>
+					<div class="story_holder">
+						<div></div>
+					</div>
+					<div class="share_box">
+						<p class="share_text">Share:</p>
+						<a href="#" class="custom_twitter_share">Tweet this</a>
+						<a href="#" class="custom_fb_share">Share on Facebook</a>
+						<span class="spacer"></span>
+					</div>
+				</div>
+			</div>
+
+		</div><!-- #content -->
+	</div><!-- #primary -->
+
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDo6BLDTqb_I224yaylnc3K5003eGeRcWQ&sensor=false"></script>
+
+    <script type="text/javascript">
+    
+    	var user_name = '';
+    	var user_story = '';
+    	var user_photo = '';
+    	var user_location = '';
+    	var user_title = '';
+    	var user_date = '';
+    	var user_lat = 0;
+    	var user_lon = 0;
+ 		var ajaxurl =  'http://jacktopping-ww.dev-umg-uk-wp3.com/wp-admin/admin-ajax.php';    		
+ 		var markerClusterer;    		
+		window.twttr = (function (d,s,id) {
+
+      var t, js, fjs = d.getElementsByTagName(s)[0];
+
+      if (d.getElementById(id)) return; js=d.createElement(s); js.id=id;
+
+      js.src="https://platform.twitter.com/widgets.js"; fjs.parentNode.insertBefore(js, fjs);
+
+      return window.twttr || (t = { _e: [], ready: function(f){ t._e.push(f) } });
+
+    }(document, "script", "twitter-wjs"));
+   	
+   			
+			/* set up variables */
+			var hash = window.location.hash.substr(1);
+		var bar, percent, status;
+	    var map;
+	    
+	    var this_location_lat = '50.822421';
+	    var this_location_lon = '-0.137386';
+	    
+	    // markers
+		var placeable_marker, marker, deepMarker;		
+	    var i;
+    	var geocoder;
+		var jack_pins = [];
+		var top5_pins = [];
+		var user_pins = [];
+		var markersOnMap = [];
+		var markersTop5 = [];
+		var markersJack = [];
+		var image = 'images/marker_yellow.png';	  
+		var image_jack = 'images/marker_blue.png';	 
+		var image_top5 = 'images/marker_red.png';	 
+
+	
+		var markerImage = new google.maps.MarkerImage(image, new google.maps.Size(28, 26));
+        var reg_zoom = -1;
+        var reg_size = -1;
+        var reg_style = parseInt(0);
+        reg_zoom = reg_zoom == -1 ? null : reg_zoom;
+        reg_size = reg_size == -1 ? null : reg_size;
+        reg_style = reg_style == -1 ? null: reg_style;
+	
+		var styles = [ { "stylers": [ { "gamma": 0.81 }, { "saturation": 19 }, { "hue": "#00aaff" }, { "lightness": -30 } ] },{ },{ "featureType": "administrative", "elementType": "labels", "stylers": [ { "invert_lightness": true } ] },{ "elementType": "labels.text.stroke", "stylers": [ { "weight": 3 }, { "hue": "#006eff" }, { "saturation": 35 }, { "lightness": -13 } ] },{ "featureType": "water", "stylers": [ { "lightness": 65 } ] },{ "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [ { "invert_lightness": true }, { "weight": 1.1 }, { "lightness": 15 } ] } ];
+
+
+		
+		/* Get all of the User Stories, except the top 5 */
+
+		
+		var loc = ["Passing my driving test",50.954469,-0.1287009999999782,"","Sas","Burgess Hill","March 3, 2011", "", "I passed it, and something else.", 16]
+		user_pins.push(loc);
+		var loc = ["My Erasmus Trip",48.2081743,16.37381890000006,"","Rachel","Vienna","September 20, 2012", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/cake-150x150.jpg", "I spent a wonderful 6 months in Vienna as part of the ERASMUS program for my university degree. I will&hellip;", 21]
+		user_pins.push(loc);
+		var loc = ["My 21st Birthday",51.50651289881839,-0.1452302837890329,"","Carol","London","June 13, 2002", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/birthdaycake-150x150.jpg", "I spent my 21st birthday at the Ritz having afternoon tea, it was a magical day and they made me&hellip;", 24]
+		user_pins.push(loc);
+		var loc = ["My Parisian Honeymoon",48.873389,2.330793999999969,"","John","Galeries Lafayette, Paris","March 15, 1999", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/nutella-150x150.jpg", "After marrying my beautiful wife, we honeymooned in Paris. After a day of shopping we made the wonderful discovery of&hellip;", 27]
+		user_pins.push(loc);
+		var loc = ["Sophie&#8217;s First Birthday",54.691745,-1.2129260000000386,"","James","Hartlepool","January 29, 2008", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/birthday-150x150.jpg", "My daughter's first birthday is a day I will never forget.", 29]
+		user_pins.push(loc);
+		var loc = ["Live Music",40.7827096,-73.96530999999999,"","Tom","Central Park","June 12, 2011", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/282094_10150333070601018_4786575_n-150x150.jpg", "I've always loved music and watching the buskers in Central Park made me fell like I was part of a&hellip;", 67]
+		user_pins.push(loc);
+		var loc = ["New Forest Getaway",50.8758752,-1.6327718000000004,"","Christina","New Forest","July 1, 2012", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/10/8702_788910273194_828660338_n-150x150.jpg", "As a pre-wedding retreat to get away from the in-laws we went to see the animals and forest come to&hellip;", 74]
+		user_pins.push(loc);
+		var loc = ["Valentines Day",50.81406367579469,-1.2275288566406743,"","Katerina","Portsmouth","February 14, 2010", "http://jacktopping-ww.dev-umg-uk-wp3.com/wp-content/uploads/2013/11/582639_10152530886550268_1719703374_n-1-150x150.jpg", "Had a lovely valentines meal on the beach with my best friend watching all the lovers go by.", 94]
+		user_pins.push(loc);
+				
+		 		 
+		 /* get all of the top 5s */
+		
+		var loc = ["Where We Met",48.1458923,17.107137299999976,"","Tope","Bratislava","August 11, 2005", "", "I will never forget the moment I laid eyes on my future husband, across the square. He ran over to&hellip;", 32]
+		top5_pins.push(loc);
+			
+    	
+    	$(document).ready(function() {
+			bar = $('.bar');
+			percent = $('.percent');
+			status = $('#status');
+    	    	
+    		$("#submit_details form").submit(function(e) {
+				e.preventDefault();
+				    			
+    		});
+    		
+    		
+    		
+    		$("#place_pin form#final_form").submit(function(e) {
+				e.preventDefault();
+    		});
+    	 	
+    	
+    	
+    	
+    	
+    		/**
+    		* All click events and listeners
+    		*
+    		*/
+    		$('.btn_close_pin').click(function(e) {
+    			e.preventDefault();
+    			enableControls();
+    			hidePlaceableMarker();
+    			// close any popups that are open
+    			$('#user_story_holder').fadeOut(function() {
+	    			$('.story_preview_holder').show();
+	    			$('.story_holder').hide();
+    			});
+    			// reset box
+    			
+    		});
+    	
+    		$('.custom_twitter_share').click(function(event) {
+			    var width  = 575,
+			        height = 400,
+			        left   = ($(window).width()  - width)  / 2,
+			        top    = ($(window).height() - height) / 2,
+			        url    = this.href,
+			        opts   = 'status=1' +
+			                 ',width='  + width  +
+			                 ',height=' + height +
+			                 ',top='    + top    +
+			                 ',left='   + left;
+			    
+			    window.open(url, 'twitter', opts);
+			 
+			    return false;
+			  });
+			    	
+    	
+			$('.custom_fb_share').click(function(e){
+				e.preventDefault();
+			    var width  = 626,
+			        height = 436,
+			        left   = ($(window).width()  - width)  / 2,
+			        top    = ($(window).height() - height) / 2,
+			        url    = 'https://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent($(this).attr('href')),
+			        opts   = 'status=1' +
+			                 ',width='  + width  +
+			                 ',height=' + height +
+			                 ',top='    + top    +
+			                 ',left='   + left;
+			    
+			    window.open(url, 'Facebook', opts);
+			});
+    	    	
+		    	   
+		    
+    	$(document).keypress(function (e) { 
+    
+    		console.log('sas');
+    
+/* 	        if(!$('textarea').is(":focus") && !$('input').is(":focus")){ */
+	
+	            if(e.which == 115 )// if 's' hit, subscribe to this fic
+	            {
+	                if (jQuery('#new_subscription').length > 0)
+	                {
+	                    jQuery('#new_subscription').submit();
+	                }
+	            }
+	            if(e.which == 107)// if 'k' hit, give this fic kudos
+	            {
+	                if ($('#new_kudo').length > 0)
+	                {
+	                    $('#new_kudo').submit();
+	                }
+	            }
+	            if(e.which == 109)// if 'm' hit, mark this fic to read later
+	            {
+	                var location = $('li.mark a').attr('href');
+	                if (location!=null)
+	                {
+	                    window.location.href = location;
+	                }
+	            }
+	            if(e.which == 100 )// if 'd' hit, download the mobi version of this
+	            {
+	                var location = $('li.download .secondary a').first().attr('href');
+	                if (location!=null)
+	                {
+	                    window.location.href = location;
+	                }
+	            }
+	            if(e.which == 35 )// if # selected, set to view complete only & english and reload page
+	            {
+	                $('#work_search_language_id').val('1');
+	                var complete_status = $('#work_search_complete').prop('checked');
+	                 $('#work_search_complete').prop('checked', !complete_status );
+	                 $('#work_filters').submit();
+	            }
+	        
+	            if(e.keyCode == 37)  // left
+	            {
+	            	console.log('left');
+	            	
+	             //   alert(location);
+	               // jQuery('li.previous a').css('background-color','purple');
+	    
+	                var location = $('li.previous a').attr('href');
+	                if (location!=null)
+	                {
+	                    window.location.href = location;
+	                }
+	                
+	            } else if(e.keyCode == 39)  // right
+	            {   
+	                var location = $('li.next a').attr('href');
+	                if (location!=null)
+	                {
+	                    window.location.href = location;
+	                }
+	            }
+/* 	          }  	    */
+		    	   
+		    });	   
+		    	   
+		    	   
+		    	   
+		    	   
+		    	   
+		    	   
+		    	   
+		    	    	
+		    	
+		 	/** 
+		 	* Initialise the google map
+		 	*/
+		 	function askForLocation() {	    		    	
+			    if(navigator.geolocation) {
+			        navigator.geolocation.getCurrentPosition(initialize, onError);
+				}	
+		 	}
+		 	
+		    function initialize(location) {
+		    	
+			        this_location_lat = location.coords.latitude;
+			        this_location_lon = location.coords.longitude;
+		     		geocoder = new google.maps.Geocoder();
+			        var mapOptions = {
+				      zoom: 18,
+				      minZoom: 18,
+				      maxZoom: 18,
+				      keyboardShortcuts: false,
+   				      center: new google.maps.LatLng(this_location_lat, this_location_lon),
+			          mapTypeId: google.maps.MapTypeId.SATELLITE,
+		                zoomControl: false,
+		                zoomControlOptions: {
+		                    style: google.maps.ZoomControlStyle.SMALL,
+		                    position: google.maps.ControlPosition.LEFT_TOP
+		                },
+		                mapTypeControl: false,
+		                streetViewControl: false,
+		                streetViewControlOptions: {
+		                    position: google.maps.ControlPosition.TOP_LEFT
+		                },
+		                panControl: true,
+		                panControlOptions: {
+		                    position: google.maps.ControlPosition.TOP_RIGHT
+		                },
+		                styles: styles
+			        };
+			        map = new google.maps.Map(document.getElementById("map-canvas"),
+			            mapOptions);
+
+
+				      marker = new google.maps.Marker({
+				        position: new google.maps.LatLng(+this_location_lat, +this_location_lon),
+				        map: map,
+				        optimized: false,
+				        icon: image
+				      });
+				
+				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+				      	return function() {
+				         // showPin(user_pins,i); 
+				        }
+				      })(marker, i));
+
+			            
+/* 				 addAllPins(); */
+				 
+				google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
+					
+					if (hash != '') 
+					{
+						google.maps.event.trigger(deepMarker, 'click');
+					}
+				});	    	
+		            
+		      }
+		    	google.maps.event.addDomListener(window, 'load', askForLocation);
+		  
+		    	
+		 
+		 	// init functions
+			$('#btn_load_jack').click();
+			
+			// set the facebookshare buttons on page load
+			var share_text = "I've just visited Jack Topping's Wonderful World memory map. Come have a look and join Jack's journey.";			
+			$('.custom_twitter_share').attr('href', 'https://twitter.com/share?url=' + encodeURIComponent('http://po.st/JackTopping') + '&text=' + encodeURIComponent(share_text) + '&hashtags=jacktopping');
+			$('.custom_fb_share').attr('href', 'http://jacktopping-ww.dev-umg-uk-wp3.com');
+				
+		 
+		 	/** 
+		 	* Adds all pins to the map
+		 	*/
+		 	function addAllPins() {
+		
+				 for (i = 0; i < user_pins.length; i++) {  
+				      marker = new google.maps.Marker({
+				        position: new google.maps.LatLng(+user_pins[i][1], +user_pins[i][2]),
+				        map: map,
+				        icon: image
+				      });
+				
+				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+				      	return function() {
+				          showPin(user_pins,i); 
+				        }
+				      })(marker, i));
+				      
+					if (hash == user_pins[i][9])
+					{	
+						deepMarker = marker;
+					}
+				      
+				      markersOnMap.push(marker);
+				    }
+		
+				 for (i = 0; i < jack_pins.length; i++) {  
+		
+				      marker = new google.maps.Marker({
+				        position: new google.maps.LatLng(+jack_pins[i][1], +jack_pins[i][2]),
+				        map: map,
+				        icon: image_jack
+				      });
+					
+				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+				      	return function() {
+				          showPin(jack_pins,i); 
+				        }
+				      })(marker, i));
+		
+					if (hash == jack_pins[i][9])
+					{
+						deepMarker = marker;
+					}
+				      
+				      markersJack.push(marker);
+				      
+				    }
+						    
+				 for (i = 0; i < top5_pins.length; i++) {  
+		
+				      marker = new google.maps.Marker({
+				        position: new google.maps.LatLng(+top5_pins[i][1], +top5_pins[i][2]),
+				        map: map,
+				        icon: image_top5
+				      });
+			
+				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+				      	return function() {
+				          showPin(top5_pins,i); 
+				        }
+				      })(marker, i));
+				      
+					if (hash == top5_pins[i][9])
+					{
+						deepMarker = marker;
+					}
+				      markersTop5.push(marker);
+				     }
+		 	}
+		 
+		 
+		 	/**
+		 	* Show a specific pin
+		 	*/
+		 
+		 	function showPin(pins,i) {
+		 	
+    			disableControls();
+		 	
+    			hidePlaceableMarker();
+    			// close any popups that are open
+    			$('#user_story_holder').fadeOut(function() {
+	    			$('.story_preview_holder').show();
+	    			$('.story_holder').hide();
+    			});
+		 	
+						
+    							
+	        	map.setCenter(new google.maps.LatLng(+pins[i][1],+pins[i][2]));
+	        	$('#user_story_holder h2.title').html(pins[i][0]); 
+	        	$('#user_story_holder h2.date').html(pins[i][6]); 
+	        	$('#user_story_holder h2.location span').html(pins[i][5]); 
+	        	$('#user_story_holder h2.user span').html(pins[i][4]); 
+	        	$('#user_story_holder .story_preview').html(pins[i][8]); 
+	
+	        	$('#user_story_holder a.btn_close_pin').attr('href', pins[i][9]); 
+	        	
+	        	var the_photo = '';
+	        	if (pins[i][7] != '')
+	        	{
+	        		the_photo = $('<img src="' + pins[i][7] + '" />');
+	        	}
+	        	
+	        	$('#user_story_holder .story_holder').html('<div></div>').prepend(the_photo); 
+				
+				$('#user_story_holder .custom_twitter_share').attr('href', 'https://twitter.com/share?url=' + encodeURIComponent('http://po.st/JackTopping/#' + pins[i][9]) + '&text=' + encodeURIComponent(pins[i][0]) + '&hashtags=' + 'jacktopping');
+				$('#user_story_holder .custom_fb_share').attr('href', 'http://jacktopping-ww.dev-umg-uk-wp3.com/#' + pins[i][9]);
+				setPositionLeft($('#user_story_holder'));
+
+	        	
+	        }
+		 
+		 
+		 	
+		 	/**
+		 	* Hide placable marker, if it's on map
+		 	*/
+		 	function hidePlaceableMarker() {
+		 		if (placeable_marker != null) {
+		 			//map.removeOverlay(placeable_marker);
+		 			placeable_marker.setMap(null);
+		 		}
+		 	}
+		 
+		 
+		 	/** 
+		 	* Shows all pins 
+		 	*/ 
+		 	function showAllPins() {
+		 		showUserPins();
+		 		showJackPins();
+		 		showTop5Pins();
+		 		google.maps.event.trigger(map,'resize');
+		 	} 
+		
+		 	/** 
+		 	* Show each set of pins
+		 	*/
+			function showUserPins() {
+			  //  markerClusterer.addMarkers(markersOnMap);
+			    
+		
+			} 	
+			function showJackPins() {
+				 for (i = 0; i < markersJack.length; i++) {  
+				     markersJack[i].setVisible(true);		      
+			    }
+			}
+			 	
+			function showTop5Pins() {
+				 for (i = 0; i < markersTop5.length; i++) {  
+				     markersTop5[i].setVisible(true);		      
+			    }
+			}
+			
+		
+		 	/** 
+		 	* Hides all pins
+		 	*/
+			function hideAllPins() {
+			    markerClusterer.removeMarkers(markersOnMap);
+		    
+				 for (i = 0; i < markersJack.length; i++) {  
+				     markersJack[i].setVisible(false);		      
+			    }
+			    
+				 for (i = 0; i < markersTop5.length; i++) {  
+				     markersTop5[i].setVisible(false);		      
+			    }
+		
+		 		google.maps.event.trigger(map,'resize');
+			    
+			}
+		
+		    	
+		    /** 
+		 	* Takes the address a person has entered
+		 	* and encodes it to lat lon based on best guess
+		 	* if it fails it takes them to australia
+		 	* because everyone should visit australia once in their life
+		 	*/
+		 
+			 function codeAddress() {
+				  var address = user_location;
+				  geocoder.geocode( { 'address': address}, function(results, status) {
+				    if (status == google.maps.GeocoderStatus.OK) {
+				      map.setCenter(results[0].geometry.location);
+				      placeable_marker = new google.maps.Marker({
+				          map: map,
+				          position: results[0].geometry.location,
+				          draggable: true,
+				          icon: image
+				      });
+				    } else {
+				    	// if it fails put it in a random place (TODO: better fallback -- ask them to enter location again? at least display message that it couldn't be placed?)
+				      map.setCenter( new google.maps.LatLng(-34.397, 150.644));
+				      placeable_marker = new google.maps.Marker({
+				          map: map,
+				          position:  new google.maps.LatLng(-34.397, 150.644),
+				          draggable: true,
+				          icon: image
+				      });
+				    }
+				  });
+				}
+				
+				
+				
+			/**
+			* disables the controls when someone has selected a popup
+			* TODO: check what else should be disabled
+			*/
+			function disableControls() {
+				$('#map_filters').hide();
+				$('#btn_save_the_children').hide();
+				$('#btn_submit_story').hide();
+				$('#btn_read_jack').hide();
+			}
+			
+			/**
+			* enables the controls when someone has left a popup
+			* TODO: check what else should be enabled
+			*/
+			function enableControls() {
+				$('#map_filters').show();
+				$('#btn_save_the_children').show();
+				$('#btn_submit_story').show();
+				$('#btn_read_jack').show();
+			}
+			
+			/**
+			* sets supplied pop up so it's in the middle of the screen
+			*/ 
+			function setPositionLeft(popup) {
+				var window_width = $(window).width();
+				var this_width = popup.outerWidth();
+				popup.css('left', Math.round((window_width-this_width) /2));
+			}
+			
+
+			/* when something goes wrong */			
+			function onError(){
+				console.log('something has gone wrong');
+			}
+			
+			
+			
+			
+			
+    	
+    	});
+    
+
+    </script>
+
+	
+	</div>
+	
+</div><!-- #page -->
+
+<script type="text/javascript">
+</script>
+	</body>
+</html>

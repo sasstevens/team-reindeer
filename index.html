@@ -159,8 +159,8 @@
     }(document, "script", "twitter-wjs"));
    	
    			
-			/* set up variables */
-			var hash = window.location.hash.substr(1);
+		/* set up variables */
+		var hash = window.location.hash.substr(1);
 		var bar, percent, status;
 	    var map;
 	    
@@ -222,24 +222,6 @@
 			
     	
     	$(document).ready(function() {
-			bar = $('.bar');
-			percent = $('.percent');
-			status = $('#status');
-    	    	
-    		$("#submit_details form").submit(function(e) {
-				e.preventDefault();
-				    			
-    		});
-    		
-    		
-    		
-    		$("#place_pin form#final_form").submit(function(e) {
-				e.preventDefault();
-    		});
-    	 	
-    	
-    	
-    	
     	
     		/**
     		* All click events and listeners
@@ -296,46 +278,12 @@
 		    
     	$(document).keypress(function (e) { 
     
-    		console.log('sas');
-    
-/* 	        if(!$('textarea').is(":focus") && !$('input').is(":focus")){ */
-	
 	            if(e.which == 115 )// if 's' hit, subscribe to this fic
 	            {
 	                if (jQuery('#new_subscription').length > 0)
 	                {
 	                    jQuery('#new_subscription').submit();
 	                }
-	            }
-	            if(e.which == 107)// if 'k' hit, give this fic kudos
-	            {
-	                if ($('#new_kudo').length > 0)
-	                {
-	                    $('#new_kudo').submit();
-	                }
-	            }
-	            if(e.which == 109)// if 'm' hit, mark this fic to read later
-	            {
-	                var location = $('li.mark a').attr('href');
-	                if (location!=null)
-	                {
-	                    window.location.href = location;
-	                }
-	            }
-	            if(e.which == 100 )// if 'd' hit, download the mobi version of this
-	            {
-	                var location = $('li.download .secondary a').first().attr('href');
-	                if (location!=null)
-	                {
-	                    window.location.href = location;
-	                }
-	            }
-	            if(e.which == 35 )// if # selected, set to view complete only & english and reload page
-	            {
-	                $('#work_search_language_id').val('1');
-	                var complete_status = $('#work_search_complete').prop('checked');
-	                 $('#work_search_complete').prop('checked', !complete_status );
-	                 $('#work_filters').submit();
 	            }
 	        
 	            if(e.keyCode == 37)  // left
@@ -359,13 +307,12 @@
 	                    window.location.href = location;
 	                }
 	            }
-/* 	          }  	    */
 		    	   
 		    });	   
 		    	   
 		    	   
 		    	   
-		    	   
+		   
 		    	   
 		    	   
 		    	   
@@ -424,206 +371,15 @@
 				         // showPin(user_pins,i); 
 				        }
 				      })(marker, i));
-
-			            
-/* 				 addAllPins(); */
-				 
-				google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
-					
-					if (hash != '') 
-					{
-						google.maps.event.trigger(deepMarker, 'click');
-					}
-				});	    	
+  	
 		            
 		      }
 		    	google.maps.event.addDomListener(window, 'load', askForLocation);
 		  
-		    	
-		 
-		 	// init functions
-			$('#btn_load_jack').click();
-			
-			// set the facebookshare buttons on page load
-			var share_text = "I've just visited Jack Topping's Wonderful World memory map. Come have a look and join Jack's journey.";			
-			$('.custom_twitter_share').attr('href', 'https://twitter.com/share?url=' + encodeURIComponent('http://po.st/JackTopping') + '&text=' + encodeURIComponent(share_text) + '&hashtags=jacktopping');
-			$('.custom_fb_share').attr('href', 'http://jacktopping-ww.dev-umg-uk-wp3.com');
-				
-		 
-		 	/** 
-		 	* Adds all pins to the map
-		 	*/
-		 	function addAllPins() {
-		
-				 for (i = 0; i < user_pins.length; i++) {  
-				      marker = new google.maps.Marker({
-				        position: new google.maps.LatLng(+user_pins[i][1], +user_pins[i][2]),
-				        map: map,
-				        icon: image
-				      });
-				
-				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
-				      	return function() {
-				          showPin(user_pins,i); 
-				        }
-				      })(marker, i));
-				      
-					if (hash == user_pins[i][9])
-					{	
-						deepMarker = marker;
-					}
-				      
-				      markersOnMap.push(marker);
-				    }
-		
-				 for (i = 0; i < jack_pins.length; i++) {  
-		
-				      marker = new google.maps.Marker({
-				        position: new google.maps.LatLng(+jack_pins[i][1], +jack_pins[i][2]),
-				        map: map,
-				        icon: image_jack
-				      });
-					
-				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
-				      	return function() {
-				          showPin(jack_pins,i); 
-				        }
-				      })(marker, i));
-		
-					if (hash == jack_pins[i][9])
-					{
-						deepMarker = marker;
-					}
-				      
-				      markersJack.push(marker);
-				      
-				    }
-						    
-				 for (i = 0; i < top5_pins.length; i++) {  
-		
-				      marker = new google.maps.Marker({
-				        position: new google.maps.LatLng(+top5_pins[i][1], +top5_pins[i][2]),
-				        map: map,
-				        icon: image_top5
-				      });
-			
-				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
-				      	return function() {
-				          showPin(top5_pins,i); 
-				        }
-				      })(marker, i));
-				      
-					if (hash == top5_pins[i][9])
-					{
-						deepMarker = marker;
-					}
-				      markersTop5.push(marker);
-				     }
-		 	}
+		 		
 		 
 		 
-		 	/**
-		 	* Show a specific pin
-		 	*/
 		 
-		 	function showPin(pins,i) {
-		 	
-    			disableControls();
-		 	
-    			hidePlaceableMarker();
-    			// close any popups that are open
-    			$('#user_story_holder').fadeOut(function() {
-	    			$('.story_preview_holder').show();
-	    			$('.story_holder').hide();
-    			});
-		 	
-						
-    							
-	        	map.setCenter(new google.maps.LatLng(+pins[i][1],+pins[i][2]));
-	        	$('#user_story_holder h2.title').html(pins[i][0]); 
-	        	$('#user_story_holder h2.date').html(pins[i][6]); 
-	        	$('#user_story_holder h2.location span').html(pins[i][5]); 
-	        	$('#user_story_holder h2.user span').html(pins[i][4]); 
-	        	$('#user_story_holder .story_preview').html(pins[i][8]); 
-	
-	        	$('#user_story_holder a.btn_close_pin').attr('href', pins[i][9]); 
-	        	
-	        	var the_photo = '';
-	        	if (pins[i][7] != '')
-	        	{
-	        		the_photo = $('<img src="' + pins[i][7] + '" />');
-	        	}
-	        	
-	        	$('#user_story_holder .story_holder').html('<div></div>').prepend(the_photo); 
-				
-				$('#user_story_holder .custom_twitter_share').attr('href', 'https://twitter.com/share?url=' + encodeURIComponent('http://po.st/JackTopping/#' + pins[i][9]) + '&text=' + encodeURIComponent(pins[i][0]) + '&hashtags=' + 'jacktopping');
-				$('#user_story_holder .custom_fb_share').attr('href', 'http://jacktopping-ww.dev-umg-uk-wp3.com/#' + pins[i][9]);
-				setPositionLeft($('#user_story_holder'));
-
-	        	
-	        }
-		 
-		 
-		 	
-		 	/**
-		 	* Hide placable marker, if it's on map
-		 	*/
-		 	function hidePlaceableMarker() {
-		 		if (placeable_marker != null) {
-		 			//map.removeOverlay(placeable_marker);
-		 			placeable_marker.setMap(null);
-		 		}
-		 	}
-		 
-		 
-		 	/** 
-		 	* Shows all pins 
-		 	*/ 
-		 	function showAllPins() {
-		 		showUserPins();
-		 		showJackPins();
-		 		showTop5Pins();
-		 		google.maps.event.trigger(map,'resize');
-		 	} 
-		
-		 	/** 
-		 	* Show each set of pins
-		 	*/
-			function showUserPins() {
-			  //  markerClusterer.addMarkers(markersOnMap);
-			    
-		
-			} 	
-			function showJackPins() {
-				 for (i = 0; i < markersJack.length; i++) {  
-				     markersJack[i].setVisible(true);		      
-			    }
-			}
-			 	
-			function showTop5Pins() {
-				 for (i = 0; i < markersTop5.length; i++) {  
-				     markersTop5[i].setVisible(true);		      
-			    }
-			}
-			
-		
-		 	/** 
-		 	* Hides all pins
-		 	*/
-			function hideAllPins() {
-			    markerClusterer.removeMarkers(markersOnMap);
-		    
-				 for (i = 0; i < markersJack.length; i++) {  
-				     markersJack[i].setVisible(false);		      
-			    }
-			    
-				 for (i = 0; i < markersTop5.length; i++) {  
-				     markersTop5[i].setVisible(false);		      
-			    }
-		
-		 		google.maps.event.trigger(map,'resize');
-			    
-			}
 		
 		    	
 		    /** 
@@ -659,45 +415,24 @@
 				
 				
 				
-			/**
-			* disables the controls when someone has selected a popup
-			* TODO: check what else should be disabled
-			*/
-			function disableControls() {
-				$('#map_filters').hide();
-				$('#btn_save_the_children').hide();
-				$('#btn_submit_story').hide();
-				$('#btn_read_jack').hide();
-			}
-			
-			/**
-			* enables the controls when someone has left a popup
-			* TODO: check what else should be enabled
-			*/
-			function enableControls() {
-				$('#map_filters').show();
-				$('#btn_save_the_children').show();
-				$('#btn_submit_story').show();
-				$('#btn_read_jack').show();
-			}
-			
-			/**
-			* sets supplied pop up so it's in the middle of the screen
-			*/ 
-			function setPositionLeft(popup) {
-				var window_width = $(window).width();
-				var this_width = popup.outerWidth();
-				popup.css('left', Math.round((window_width-this_width) /2));
-			}
-			
-
 			/* when something goes wrong */			
 			function onError(){
 				console.log('something has gone wrong');
 			}
 			
+			var framerate = ~~(6000/25); 
 			
+			setInterval(draw,framerate);
 			
+			/**
+			* Draw loop
+			* This is fired and checks if the robot has moved and if it has then it moves
+			*/
+			function draw() {
+/* 				console.log('drawing'); */
+				
+
+			}
 			
 			
     	

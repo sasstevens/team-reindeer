@@ -164,8 +164,8 @@
 		var bar, percent, status;
 	    var map;
 	    
-	    var this_location_lat = '50.822421';
-	    var this_location_lon = '-0.137386';
+	    var this_location_lat = 50.822421;
+	    var this_location_lon = -0.137386;
 	    
 	    // markers
 		var placeable_marker, marker, deepMarker;		
@@ -180,7 +180,10 @@
 		var image = 'images/marker_yellow.png';	  
 		var image_jack = 'images/marker_blue.png';	 
 		var image_top5 = 'images/marker_red.png';	 
-
+		
+		//var robot_lat = '';
+		//var robot_lon = '';
+		var robot_step = 0.00005;
 	
 		var markerImage = new google.maps.MarkerImage(image, new google.maps.Size(28, 26));
         var reg_zoom = -1;
@@ -192,6 +195,8 @@
 	
 		var styles = [ { "stylers": [ { "gamma": 0.81 }, { "saturation": 19 }, { "hue": "#00aaff" }, { "lightness": -30 } ] },{ },{ "featureType": "administrative", "elementType": "labels", "stylers": [ { "invert_lightness": true } ] },{ "elementType": "labels.text.stroke", "stylers": [ { "weight": 3 }, { "hue": "#006eff" }, { "saturation": 35 }, { "lightness": -13 } ] },{ "featureType": "water", "stylers": [ { "lightness": 65 } ] },{ "featureType": "administrative", "elementType": "geometry.stroke", "stylers": [ { "invert_lightness": true }, { "weight": 1.1 }, { "lightness": 15 } ] } ];
 
+		var fireOnce = true;
+		var framerate = ~~(1000/25); 
 
 		
 		/* Get all of the User Stories, except the top 5 */
@@ -278,34 +283,24 @@
 		    
     	$(document).keypress(function (e) { 
     
-	            if(e.which == 115 )// if 's' hit, subscribe to this fic
+	            if(e.which == 32 )// if 's' hit, subscribe to this fic
 	            {
-	                if (jQuery('#new_subscription').length > 0)
-	                {
-	                    jQuery('#new_subscription').submit();
-	                }
+	               console.log('destroy');
 	            }
 	        
 	            if(e.keyCode == 37)  // left
-	            {
-	            	console.log('left');
-	            	
-	             //   alert(location);
-	               // jQuery('li.previous a').css('background-color','purple');
-	    
-	                var location = $('li.previous a').attr('href');
-	                if (location!=null)
-	                {
-	                    window.location.href = location;
-	                }
+	            {            	
+	                this_location_lon = this_location_lon - robot_step;
 	                
 	            } else if(e.keyCode == 39)  // right
 	            {   
-	                var location = $('li.next a').attr('href');
-	                if (location!=null)
-	                {
-	                    window.location.href = location;
-	                }
+	                this_location_lon = this_location_lon + robot_step;
+	            } else if(e.keyCode == 38)  // up
+	            {   
+	                this_location_lat = this_location_lat + robot_step;
+	            } else if(e.keyCode == 40)  // down
+	            {   
+	                this_location_lat = this_location_lat - robot_step;
 	            }
 		    	   
 		    });	   
@@ -368,17 +363,27 @@
 				
 				      google.maps.event.addListener(marker, 'click', (function(marker, i) {
 				      	return function() {
+				      		
+						  //  setInterval(draw,framerate);
 				         // showPin(user_pins,i); 
 				        }
 				      })(marker, i));
+				       
+					 google.maps.event.addListenerOnce(map, 'idle', function(){
+/* 					 	console.log('idle'); */
+					 	if (fireOnce)
+					 	{
+					 		fireOnce = false;
+						    setInterval(draw,framerate);
+						}
+					});
+				      
   	
 		            
 		      }
 		    	google.maps.event.addDomListener(window, 'load', askForLocation);
 		  
-		 		
-		 
-		 
+		
 		 
 		
 		    	
@@ -420,9 +425,8 @@
 				console.log('something has gone wrong');
 			}
 			
-			var framerate = ~~(6000/25); 
 			
-			setInterval(draw,framerate);
+			
 			
 			/**
 			* Draw loop
@@ -430,8 +434,7 @@
 			*/
 			function draw() {
 /* 				console.log('drawing'); */
-				
-
+				marker.setPosition(new google.maps.LatLng(this_location_lat, this_location_lon));
 			}
 			
 			

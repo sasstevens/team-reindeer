@@ -1,6 +1,5 @@
 <?php
-header('Content-type: text/json');
-header('Content-type: application/json');
+header('Content-Type: image/png');
 
 $username = "root";
 $password = "";
@@ -11,34 +10,67 @@ $dbname = "team_reindeer";
 try {
     $dbh = new PDO("mysql:host=$hostname;dbname=$dbname", $username, $password);
     /*** echo a message saying we have connected ***/
-   // echo 'Connected to database';
+   
+   
+   	$x_coord = $_GET['x_coord'];
+	$y_coord = $_GET['y_coord'];
+    
     
     // look the map tile up in the database
     
     // if it's not there, then insert a blank entry
     
-    
-    
-    $statement = $dbh->prepare("SELECT count(*) as snowmen FROM votes WHERE vote = 'snowman' GROUP BY vote");
-     if( $statement->execute() ) {
+	    // then return an empty tile
+
+	// else get the info about it
+$image = imagecreatetruecolor(485, 500);
+imagealphablending($image, false);
+imagesavealpha($image, true);
+$col=imagecolorallocatealpha($image,255,255,255,127);
+imagefill($image, 0, 0, $col);
+//imagefilledrectangle($image,0,0,485, 500,$col);
+
+
+/* add door glass */
+$img_doorGlass = imagecreatefrompng("images/damage1.png");     
+imagecopyresampled($image, $img_doorGlass, 106, 15, 0, 0, 185, 450, 185, 450);              
+
+
+/* add door */
+$img_doorStyle = imagecreatefrompng("door/$doorStyle/$doorStyle"."_"."$doorColor.png");     
+imagecopyresampled($image, $img_doorStyle, 106, 15, 0, 0, 185, 450, 185, 450);
+
+
+$fn = md5(microtime()."door_builder").".png";
+
+if(imagepng($image, "user_doors/$fn", 1)){
+  echo "user_doors/$fn";
+}       
+imagedestroy($image); 
+
+
+	
+	// check if this monster already exists	
+    $statement = $dbh->prepare("SELECT damage_level FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
+     if( $statement->execute(array($x_coord,$y_coord)) ) {
      	$result = $statement->fetch();
-        $snowmen = $result["snowmen"];
+     	if ($result == '') 
+     	{
+    		$statement = $dbh->prepare("INSERT INTO map_tiles (coord_x, coord_y) VALUES (?, ?)");
+     		 $statement->execute(array($x_coord,$y_coord));
+     	} else {
+     		for ($i = 0; $i <= $result['damage_level']; $i++ ) {
+     			// get damage and place it randomly within this tile
+     		}
+     	}
+     	// return transparent tile
+     	
       } else {
      	 // Query failed
-     	 $snowmen = 0;
-	}
-    $statement = $dbh->prepare("SELECT count(*) as reindeer FROM votes WHERE vote = 'reindeer' GROUP BY vote");
-     if( $statement->execute() ) {
-     	$result = $statement->fetch();     	
-        $reindeer = $result["reindeer"];
-      } else {
-      // Query failed
-      $reindeer = 0;
+         // return transparent tile
 	}
 	
- 	$new_arr = array($reindeer, $snowmen);
- 	echo json_encode($new_arr);  
- 
+	 
     /*** close the database connection ***/
     $dbh = null;
     

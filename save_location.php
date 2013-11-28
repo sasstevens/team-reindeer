@@ -14,11 +14,7 @@ try {
 	$monster = $_GET['monster_id']; 
 	$lat = $_GET['lat'];
 	$lon = $_GET['lon'];
-	
-	echo $monster;
-	echo $lat;
-	echo $lon;
-	
+
 	// check if this monster already exists	
 	$sql = "UPDATE monsters 
 	        SET lat=?, lon=?

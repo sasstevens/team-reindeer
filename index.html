@@ -181,6 +181,8 @@
 		var image_jack = 'images/marker_blue.png';	 
 		var image_top5 = 'images/marker_red.png';	 
 		
+		var monster_id = 5;
+		
 		//var robot_lat = '';
 		//var robot_lon = '';
 		var robot_step = 0.00005;
@@ -305,9 +307,25 @@
 		    	   
 		    });	   
 		    	   
+		    
+		    // TODO:  
 		    	   
-		    	   
-		   
+		    var imageMapType = new google.maps.ImageMapType({
+			    getTileUrl: function(coord, zoom) {
+			      if (zoom < 17 || zoom > 20 ||
+			          bounds[zoom][0][0] > coord.x || coord.x > bounds[zoom][0][1] ||
+			          bounds[zoom][1][0] > coord.y || coord.y > bounds[zoom][1][1]) {
+			        return null;
+			      }
+			
+			      return ['http://www.gstatic.com/io2010maps/tiles/5/L2_',
+			          zoom, '_', coord.x, '_', coord.y, '.png'].join('');
+			    },
+			    tileSize: new google.maps.Size(256, 256)
+			  });
+			
+			//  map.overlayMapTypes.push(imageMapType);
+
 		    	   
 		    	   
 		    	   
@@ -375,13 +393,14 @@
 					 	{
 					 		fireOnce = false;
 						    setInterval(draw,framerate);
+						    setInterval(saveLocation,10000);
 						}
 					});
 				      
   	
 		            
 		      }
-		    	google.maps.event.addDomListener(window, 'load', askForLocation);
+		    google.maps.event.addDomListener(window, 'load', askForLocation);
 		  
 		
 		 
@@ -435,6 +454,17 @@
 			function draw() {
 /* 				console.log('drawing'); */
 				marker.setPosition(new google.maps.LatLng(this_location_lat, this_location_lon));
+			}
+			function saveLocation() {
+				$.ajax({
+				    type: "GET",
+				    url: "save_location.php?",
+				    data: {monster_id: monster_id, lat: marker.getPosition().lat(), lon: marker.getPosition().lng()},
+				    success: function(){
+				        console.log('done');
+				    }
+				});
+				
 			}
 			
 			

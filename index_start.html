@@ -1,0 +1,120 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>Color Thief</title>
+
+  <meta name="description" content="Color Thief is a script for grabbing the color palette from an image. It uses Javacript and the canvas tag.">
+  <meta name="author" content="Lokesh Dhakar">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+<script src="js/libs/jquery-2.0.2.min.js"></script>
+<script src="js/libs/jquery.lettering.js"></script>
+<script src="js/libs/mustache.js"></script>
+<script src="js/color-thief.js"></script>
+<script src="js/pixastic.custom.js"></script>
+  <script src="js/libs/modernizr.custom.js"></script>
+
+  <link rel="stylesheet" href="css/app.css">
+
+<script>
+	$( document ).ready(function() {
+		
+		
+	$('#try').click(function() {
+var colour = $('.swatch').attr('background-color');
+		
+
+		var img = new Image();
+		img.onload = function() {
+			Pixastic.process(img, "coloradjust", {red:0.5,green:-1.0,blue:0});
+		}
+		document.body.appendChild(img);
+		img.src = $('#target-image').attr('src');
+
+		});	
+			
+		$('#getimage').click(function() {
+			var canvas = $('canvas')[0];
+			
+			var myImage = canvas.getContext('2d');
+			console.log(myImage);
+			myImage = myImage['canvas']['__pixastic_org_image']['attributes']['0']['textContent'];
+			$('body').append('<img src="' + myImage + '" />');
+		});
+		});
+	</script>
+	<style>
+		.face {
+			border:2px solid #FFF;
+			display: none;
+		}
+	</style>
+
+</head>
+<body>
+
+<div class="wrapper">
+
+  <section id="drag-drop" class="drag-drop">
+    <div id="drop-zone" class="drop-zone">
+      <div class="drop-zone-label default-label">Drag an image here</div>
+      <div class="drop-zone-label dragging-label">Drop it here!</div>
+    </div>
+    <div id="dragged-images" class="dragged-images"></div>
+  </section>
+
+</div>
+
+
+<!-- Mustache templates -->
+<script id='image-section-template' type='text/x-mustache'>
+  {{#images}}
+  <div class="image-section {{class}}">
+    <div class="image-wrap">
+      <button class="run-functions-button">
+        <span class="no-touch-label">Click</span>
+        <span class="touch-label">Tap</span>
+      </button>
+      <img class="target-image" id="target-image" src="{{file}}" />
+      <div class="face"></div>
+      
+    </div>
+    <div class="color-thief-output"></div>
+  </div>
+  {{/images}}
+</script>
+
+<script id="color-thief-output-template" type="text/x-mustache">
+  <div class="function get-color">
+    <h3 class="function-title">Dominant Color</h3>
+    <div class="swatches">
+      <div class="swatch" style="background-color: rgb({{color.0}}, {{color.1}}, {{color.2}})"></div>
+    </div>
+    <div class="function-code">
+      <code>colorThief.getColor(image):{{elapsedTimeForGetColor}}ms</code>
+    </div>
+  </div>
+  <div class="function get-palette">
+    <h3 class="function-title">Palette</h3>
+    <div class="function-output">
+      <div class="swatches">
+        {{#palette}}
+          <div class="swatch" style="background-color: rgb({{0}}, {{1}}, {{2}})"></div>
+        {{/palette}}
+      </div>
+    </div>
+    <div class="function-code">
+      <code>colorThief.getPalette(image):{{elapsedTimeForGetPalette}}ms</code>
+    </div>
+  </div>
+</script>
+
+
+<script src="demo.js"></script>
+
+
+</body>
+</html>

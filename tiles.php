@@ -13,6 +13,12 @@ try {
     /*** echo a message saying we have connected ***/
    // echo 'Connected to database';
     
+    // look the map tile up in the database
+    
+    // if it's not there, then insert a blank entry
+    
+    
+    
     $statement = $dbh->prepare("SELECT count(*) as snowmen FROM votes WHERE vote = 'snowman' GROUP BY vote");
      if( $statement->execute() ) {
      	$result = $statement->fetch();

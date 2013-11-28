@@ -1,8 +1,9 @@
 <?php
-$username = "db80128_live";
-$password = "wearetilt123";
-$hostname = "internal-db.s80128.gridserver.com"; 
-$dbname = "db80128_hackathon_voting";
+
+$username = "root";
+$password = "";
+$hostname = "localhost"; 
+$dbname = "team_reindeer";
 
 
 try {
@@ -10,25 +11,21 @@ try {
     /*** echo a message saying we have connected ***/
    // echo 'Connected to database';
     
-	$team = $_GET['team'];
-    
-    if ($team == '1') {
-    	$team = "snowman";
-    } else {
-    	$team = "reindeer";
-    }
-    
-    $ip = get_client_ip();
-    
-     /*** INSERT data ***/
-    $count = $dbh->exec("INSERT INTO votes (ip, vote) VALUES ('$ip', '$team')");
-
-    /*** echo the number of affected rows ***/
-    if ($count == 1) {
-    	echo 'true';
-    } else {
-	    echo 'false';
-	 }
+	$monster = $_GET['monster_id']; 
+	$lat = $_GET['lat'];
+	$lon = $_GET['lon'];
+	
+	echo $monster;
+	echo $lat;
+	echo $lon;
+	
+	// check if this monster already exists	
+	$sql = "UPDATE monsters 
+	        SET lat=?, lon=?
+			WHERE monster_id=?";
+	$q = $dbh->prepare($sql);
+	$result = $q->execute(array($lat,$lon,$monster));
+    echo $result;
 
     /*** close the database connection ***/
     $dbh = null;

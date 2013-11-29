@@ -14,62 +14,63 @@ try {
    
    	$x_coord = $_GET['x_coord'];
 	$y_coord = $_GET['y_coord'];
-    
-    
-    // look the map tile up in the database
-    
-    // if it's not there, then insert a blank entry
-    
-	    // then return an empty tile
-
-	// else get the info about it
-$image = imagecreatetruecolor(485, 500);
-imagealphablending($image, false);
-imagesavealpha($image, true);
-$col=imagecolorallocatealpha($image,255,255,255,127);
-imagefill($image, 0, 0, $col);
-//imagefilledrectangle($image,0,0,485, 500,$col);
-
-
-/* add door glass */
-$img_doorGlass = imagecreatefrompng("images/damage1.png");     
-imagecopyresampled($image, $img_doorGlass, 106, 15, 0, 0, 185, 450, 185, 450);              
-
-
-/* add door */
-$img_doorStyle = imagecreatefrompng("door/$doorStyle/$doorStyle"."_"."$doorColor.png");     
-imagecopyresampled($image, $img_doorStyle, 106, 15, 0, 0, 185, 450, 185, 450);
-
-
-$fn = md5(microtime()."door_builder").".png";
-
-if(imagepng($image, "user_doors/$fn", 1)){
-  echo "user_doors/$fn";
-}       
-imagedestroy($image); 
-
-
-	
+    	
 	// check if this monster already exists	
-    $statement = $dbh->prepare("SELECT damage_level FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
+    $statement = $dbh->prepare("SELECT damage_x, damage_y FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
      if( $statement->execute(array($x_coord,$y_coord)) ) {
-     	$result = $statement->fetch();
-     	if ($result == '') 
-     	{
-    		$statement = $dbh->prepare("INSERT INTO map_tiles (coord_x, coord_y) VALUES (?, ?)");
-     		 $statement->execute(array($x_coord,$y_coord));
-     	} else {
-     		for ($i = 0; $i <= $result['damage_level']; $i++ ) {
+ 		// create image
+		$targetImage = imagecreatetruecolor( 400, 400 );
+		imagealphablending( $targetImage, false );
+		imagesavealpha( $targetImage, true );
+			
+		$srcImage = imagecreatefrompng(  "images/transparent.png" );    
+		imagealphablending( $srcImage, true );
+		imagesavealpha( $srcImage, true );
+		
+		imagecopyresampled( $targetImage, $srcImage, 
+		                    0, 0, 
+		                    0, 0, 
+		                    400, 400, 
+		                    400, 400 );  
+			                    
+     	while ($result = $statement->fetch(PDO::FETCH_ASSOC) ) {
+     	
      			// get damage and place it randomly within this tile
+				$damage = rand(1,3);
+								
+				$srcImage = imagecreatefrompng(  "images/damage".$damage.".png" );    
+				imagealphablending( $srcImage, true );
+				imagesavealpha( $srcImage, true );
+				
+				imagecopyresampled( $targetImage, $srcImage, 
+				                    $result['damage_x'], $result['damage_y'], 
+				                    0, 0, 
+				                    100, 100, 
+				                    100, 100 );  	
+				imagealphablending( $targetImage, true );
+				imagesavealpha( $targetImage, true );		
+     			
      		}
-     	}
+     		
+     		
+ 		// return image
+		imagealphablending( $targetImage, true );
+		imagesavealpha( $targetImage, true );
+		
+		imagepng(  $targetImage );   
+ 		imagedestroy( $targetImage );
+     		
+     
      	// return transparent tile
      	
       } else {
      	 // Query failed
          // return transparent tile
-	}
-	
+         
+         returnTransparent();
+         
+	}	
+	 
 	 
     /*** close the database connection ***/
     $dbh = null;
@@ -100,5 +101,28 @@ function get_client_ip() {
 
      return $ipaddress; 
 }
+
+
+	 
+	function returnTransparent() {
+		$srcImage = imagecreatefrompng(  "images/transparent.png" );    
+		imagealphablending( $srcImage, true );
+		imagesavealpha( $srcImage, true );
+		
+		$targetImage = imagecreatetruecolor( 400, 400 );
+		imagealphablending( $targetImage, false );
+		imagesavealpha( $targetImage, true );
+		imagecopyresampled( $targetImage, $srcImage, 
+		                    0, 0, 
+		                    0, 0, 
+		                    400, 400, 
+		                    400, 400 );
+		imagealphablending( $targetImage, true );
+		imagesavealpha( $targetImage, true );
+		
+		imagepng(  $targetImage );
+     		imagedestroy( $targetImage );
+	}	 
+
     
 ?>

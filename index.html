@@ -288,6 +288,10 @@
 	            if(e.which == 32 )// if 's' hit, subscribe to this fic
 	            {
 	               console.log('destroy');
+	               // http://localhost/~sasstevens/team-reindeer/save_damage.php?x_coord=3&y_coord=4&damage_x=200&damage_y=200
+	               //console.log('')
+	               damageMap();
+	               
 	            }
 	        
 	            if(e.keyCode == 37)  // left
@@ -307,24 +311,6 @@
 		    	   
 		    });	   
 		    	   
-		    
-		    // TODO:  
-		    	   
-		    var imageMapType = new google.maps.ImageMapType({
-			    getTileUrl: function(coord, zoom) {
-			      if (zoom < 17 || zoom > 20 ||
-			          bounds[zoom][0][0] > coord.x || coord.x > bounds[zoom][0][1] ||
-			          bounds[zoom][1][0] > coord.y || coord.y > bounds[zoom][1][1]) {
-			        return null;
-			      }
-			
-			      return ['http://www.gstatic.com/io2010maps/tiles/5/L2_',
-			          zoom, '_', coord.x, '_', coord.y, '.png'].join('');
-			    },
-			    tileSize: new google.maps.Size(256, 256)
-			  });
-			
-			//  map.overlayMapTypes.push(imageMapType);
 
 		    	   
 		    	   
@@ -394,7 +380,49 @@
 					 		fireOnce = false;
 						    setInterval(draw,framerate);
 						    setInterval(saveLocation,10000);
+						   //console.log( getMapTiles());
 						}
+						
+		    
+					    // TODO:  
+					    
+				
+/* 	    console.log('pie'); */
+
+/* 	    console.log(map.getBounds()); */
+					    var bounds = map.getBounds(),
+					        boundingBoxes = [],
+					        boundsNeLatLng = bounds.getNorthEast(),
+					        boundsSwLatLng = bounds.getSouthWest(),
+					        boundsNwLatLng = new google.maps.LatLng(boundsNeLatLng.lat(), boundsSwLatLng.lng()),
+					        boundsSeLatLng = new google.maps.LatLng(boundsSwLatLng.lat(), boundsNeLatLng.lng()),
+					        zoom = map.getZoom(),
+					        tiles = [],
+					        tileCoordinateNw = getMapTiles(boundsNwLatLng),
+					        tileCoordinateSe = getMapTiles(boundsSeLatLng),
+					        tileColumns = tileCoordinateSe.x - tileCoordinateNw.x + 1;
+					        tileRows = tileCoordinateSe.y - tileCoordinateNw.y + 1;
+					        zfactor = Math.pow(2, zoom),
+					        minX = tileCoordinateNw.x,
+					        minY = tileCoordinateNw.y;
+
+									    	   
+					    var imageMapType = new google.maps.ImageMapType({
+						    getTileUrl: function(coord, zoom) {
+						      if ( (tileCoordinateNw[0] > coord.x || coord.x > tileCoordinateSe[0] ||
+						           tileCoordinateNw[1] > coord.y || coord.y > tileCoordinateSe[1]) ) {
+						        return null;
+						      }
+/* 						      return ['tiles.php?x_coord='+coord.x+'&y_coord='+coord.y].join(''); */
+						      return ['tiles.php?x_coord=3&y_coord=4'].join('');
+						    },
+						    tileSize: new google.maps.Size(256, 256)
+						  });
+						
+						  map.overlayMapTypes.push(imageMapType);
+						
+						
+						
 					});
 				      
   	
@@ -404,6 +432,71 @@
 		  
 		
 		 
+			var TILE_SIZE = 256;
+			var chicago = marker;
+			
+			function bound(value, opt_min, opt_max) {
+			  if (opt_min != null) value = Math.max(value, opt_min);
+			  if (opt_max != null) value = Math.min(value, opt_max);
+			  return value;
+			}
+			
+			function degreesToRadians(deg) {
+			  return deg * (Math.PI / 180);
+			}
+			
+			function radiansToDegrees(rad) {
+			  return rad / (Math.PI / 180);
+			}
+			
+			/** @constructor */
+			function MercatorProjection() {
+			  this.pixelOrigin_ = new google.maps.Point(TILE_SIZE / 2,
+			      TILE_SIZE / 2);
+			  this.pixelsPerLonDegree_ = TILE_SIZE / 360;
+			  this.pixelsPerLonRadian_ = TILE_SIZE / (2 * Math.PI);
+			}
+			
+			MercatorProjection.prototype.fromLatLngToPoint = function(latLng,
+			    opt_point) {
+			  var me = this;
+			  var point = opt_point || new google.maps.Point(0, 0);
+			  var origin = me.pixelOrigin_;
+			  point.x = origin.x + latLng.lng() * me.pixelsPerLonDegree_;
+			
+			  // Truncating to 0.9999 effectively limits latitude to 89.189. This is
+			  // about a third of a tile past the edge of the world tile.
+			  var siny = bound(Math.sin(degreesToRadians(latLng.lat())), -0.9999,
+			      0.9999);
+			  point.y = origin.y + 0.5 * Math.log((1 + siny) / (1 - siny)) *
+			      -me.pixelsPerLonRadian_;
+			  return point;
+			};
+			
+			MercatorProjection.prototype.fromPointToLatLng = function(point) {
+			  var me = this;
+			  var origin = me.pixelOrigin_;
+			  var lng = (point.x - origin.x) / me.pixelsPerLonDegree_;
+			  var latRadians = (point.y - origin.y) / -me.pixelsPerLonRadian_;
+			  var lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
+			      Math.PI / 2);
+			  return new google.maps.LatLng(lat, lng);
+			};
+			
+			function getMapTiles(point) {
+			  var numTiles = 1 << map.getZoom();
+			  var projection = new MercatorProjection();
+			  var worldCoordinate = projection.fromLatLngToPoint(point);
+			  var pixelCoordinate = new google.maps.Point(
+			      worldCoordinate.x * numTiles,
+			      worldCoordinate.y * numTiles);
+			  var tileCoordinate = new google.maps.Point(
+			      Math.floor(pixelCoordinate.x / TILE_SIZE),
+			      Math.floor(pixelCoordinate.y / TILE_SIZE));
+				return [tileCoordinate.x, tileCoordinate.y];
+			}
+
+
 		
 		    	
 		    /** 
@@ -464,7 +557,7 @@
 				        console.log('done');
 				    }
 				});
-				
+				google.maps.event.trigger(map, 'resize');
 			}
 			
 			

@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: image/png');
-header('Cache-Control: no-cache, must-revalidate'); 
+/* header('Cache-Control: no-cache, must-revalidate');  */
 
 $username = "root";
 $password = "";
@@ -17,7 +17,7 @@ try {
 	$y_coord = $_GET['y_coord'];
     	
 	// check if this monster already exists	
-    $statement = $dbh->prepare("SELECT damage_x, damage_y FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
+    $statement = $dbh->prepare("SELECT damage_x, damage_y, damage_type FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
      if( $statement->execute(array($x_coord,$y_coord)) ) {
  		// create image
 		$targetImage = imagecreatetruecolor( 256, 256 );
@@ -37,7 +37,7 @@ try {
      	while ($result = $statement->fetch(PDO::FETCH_ASSOC) ) {
      	
      			// get damage and place it randomly within this tile
-				$damage = rand(1,3);
+				$damage = $result['damage_type'];
 								
 				$srcImage = imagecreatefrompng(  "images/damage".$damage.".png" );    
 				imagealphablending( $srcImage, true );

@@ -177,9 +177,13 @@
 		var markersOnMap = [];
 		var markersTop5 = [];
 		var markersJack = [];
-		var image = 'images/marker_yellow.png';	  
-		var image_jack = 'images/marker_blue.png';	 
-		var image_top5 = 'images/marker_red.png';	 
+		var image = 'images/left_1.png';	  
+	/*
+	var damage = [];
+		damage.push('images/damage1.png');	 
+		damage.push('images/damage2.png');	 
+		damage.push('images/damage3.png');	 
+*/
 		
 		var monster_id = 5;
 		
@@ -187,7 +191,7 @@
 		//var robot_lon = '';
 		var robot_step = 0.00005;
 	
-		var markerImage = new google.maps.MarkerImage(image, new google.maps.Size(28, 26));
+		var markerImage = new google.maps.MarkerImage(image, new google.maps.Size(100, 150));
         var reg_zoom = -1;
         var reg_size = -1;
         var reg_style = parseInt(0);
@@ -297,22 +301,37 @@
 	            if(e.keyCode == 37)  // left
 	            {            	
 	                this_location_lon = this_location_lon - robot_step;
+	                // switch sprite
+	                switchSprite('left');
 	                
 	            } else if(e.keyCode == 39)  // right
 	            {   
 	                this_location_lon = this_location_lon + robot_step;
+	                switchSprite('right');
 	            } else if(e.keyCode == 38)  // up
 	            {   
 	                this_location_lat = this_location_lat + robot_step;
+	                switchSprite(prev_direction);
 	            } else if(e.keyCode == 40)  // down
 	            {   
 	                this_location_lat = this_location_lat - robot_step;
+	                switchSprite(prev_direction);
 	            }
 		    	   
 		    });	   
-		    	   
+		    	
+		    var step = 1;   
+			var prev_direction = 'left';
 
-		    	   
+		    function switchSprite(direction) {
+		    	prev_direction = direction;
+		    	marker.setIcon('images/'+direction+'_'+step+'.png');
+		    	if (step) { 
+		    		step = 0;
+		    	} else {
+		    		step = 1;
+		    	}
+		    }   
 		    	   
 		    	   
 		    	    	
@@ -425,21 +444,19 @@
 					        minY = tileCoordinateNw.y;
 
 									    	   
-					/*
-    var imageMapType = new google.maps.ImageMapType({
+					    var imageMapType = new google.maps.ImageMapType({
 						    getTileUrl: function(coord, zoom) {
 						      if ( (tileCoordinateNw[0] > coord.x || coord.x > tileCoordinateSe[0] ||
 						           tileCoordinateNw[1] > coord.y || coord.y > tileCoordinateSe[1]) ) {
 						        return null;
 						      }
 						      return ['tiles.php?x_coord='+coord.x+'&y_coord='+coord.y].join('');
-/* 						      return ['tiles.php?x_coord=3&y_coord=4'].join(''); */
+						      return ['tiles.php?x_coord=3&y_coord=4'].join('');
 						    },
 						    tileSize: new google.maps.Size(256, 256)
 						  });
 						
 						  map.overlayMapTypes.push(imageMapType);
-*/
 					}	
 		 
 			var TILE_SIZE = 256;
@@ -588,20 +605,47 @@
 				});
 			}
 			function saveDamage() {
-				var stuff = getMapTiles(marker.getPosition());
-			
+				var position = marker.getPosition();
+				var stuff = getMapTiles(position);
+				var damage_type =  (~~(Math.random() * 3) +1);
+				toggleBounce();
+				
+				
 				$.ajax({
 				    type: "GET",
 				    url: "save_damage.php?",
-				    data: {x_coord: stuff[0], y_coord: stuff[1], damage_x: stuff[2] , damage_y: stuff[3] },
+				    data: {x_coord: stuff[0], y_coord: stuff[1], damage_x: stuff[2] , damage_y: stuff[3], damage_type: damage_type },
 				    success: function(){
 				        console.log('saved damage');
-				        map.overlayMapTypes.clear();
+				        // add a marker where we just damaged
+					      var damage_marker = new google.maps.Marker({
+					        position: new google.maps.LatLng(position.lat(), position.lng()),
+					        map: map,
+					        optimized: false,
+					        icon: 'images/damage'+ damage_type +'.png'
+					      });
+				      /*
+  map.overlayMapTypes.clear();
 				        drawTiles();
+*/
 				    }
 				});
 			}
 			
+
+			function toggleBounce() {
+			
+			  if (marker.getAnimation() != null) {
+			    marker.setAnimation(null);
+			    
+			  } else {
+			    marker.setZIndex(100000);
+			    marker.setAnimation(google.maps.Animation.BOUNCE);
+			    setTimeout(toggleBounce, 200);
+
+			  }
+			}
+
 			
     	
     	});

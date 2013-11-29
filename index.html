@@ -290,7 +290,7 @@
 	               console.log('destroy');
 	               // http://localhost/~sasstevens/team-reindeer/save_damage.php?x_coord=3&y_coord=4&damage_x=200&damage_y=200
 	               //console.log('')
-	               damageMap();
+	               saveDamage();
 	               
 	            }
 	        
@@ -372,6 +372,9 @@
 				         // showPin(user_pins,i); 
 				        }
 				      })(marker, i));
+				      
+				      
+				      
 				       
 					 google.maps.event.addListenerOnce(map, 'idle', function(){
 /* 					 	console.log('idle'); */
@@ -383,6 +386,9 @@
 						   //console.log( getMapTiles());
 						}
 						
+					 google.maps.event.addListener(map, 'tilesloaded', function(){
+					 	drawTiles();
+					 });
 		    
 					    // TODO:  
 					    
@@ -390,6 +396,18 @@
 /* 	    console.log('pie'); */
 
 /* 	    console.log(map.getBounds()); */
+
+						drawTiles();
+						
+					});
+				      
+  	
+		            
+		      }
+		    google.maps.event.addDomListener(window, 'load', askForLocation);
+		  
+	
+					function drawTiles() {
 					    var bounds = map.getBounds(),
 					        boundingBoxes = [],
 					        boundsNeLatLng = bounds.getNorthEast(),
@@ -407,30 +425,22 @@
 					        minY = tileCoordinateNw.y;
 
 									    	   
-					    var imageMapType = new google.maps.ImageMapType({
+					/*
+    var imageMapType = new google.maps.ImageMapType({
 						    getTileUrl: function(coord, zoom) {
 						      if ( (tileCoordinateNw[0] > coord.x || coord.x > tileCoordinateSe[0] ||
 						           tileCoordinateNw[1] > coord.y || coord.y > tileCoordinateSe[1]) ) {
 						        return null;
 						      }
-/* 						      return ['tiles.php?x_coord='+coord.x+'&y_coord='+coord.y].join(''); */
-						      return ['tiles.php?x_coord=3&y_coord=4'].join('');
+						      return ['tiles.php?x_coord='+coord.x+'&y_coord='+coord.y].join('');
+/* 						      return ['tiles.php?x_coord=3&y_coord=4'].join(''); */
 						    },
 						    tileSize: new google.maps.Size(256, 256)
 						  });
 						
 						  map.overlayMapTypes.push(imageMapType);
-						
-						
-						
-					});
-				      
-  	
-		            
-		      }
-		    google.maps.event.addDomListener(window, 'load', askForLocation);
-		  
-		
+*/
+					}	
 		 
 			var TILE_SIZE = 256;
 			var chicago = marker;
@@ -476,6 +486,8 @@
 			MercatorProjection.prototype.fromPointToLatLng = function(point) {
 			  var me = this;
 			  var origin = me.pixelOrigin_;
+			  console.log(origin);
+			  console.log(point);
 			  var lng = (point.x - origin.x) / me.pixelsPerLonDegree_;
 			  var latRadians = (point.y - origin.y) / -me.pixelsPerLonRadian_;
 			  var lat = radiansToDegrees(2 * Math.atan(Math.exp(latRadians)) -
@@ -493,7 +505,21 @@
 			  var tileCoordinate = new google.maps.Point(
 			      Math.floor(pixelCoordinate.x / TILE_SIZE),
 			      Math.floor(pixelCoordinate.y / TILE_SIZE));
-				return [tileCoordinate.x, tileCoordinate.y];
+				return [tileCoordinate.x, tileCoordinate.y, worldCoordinate.x, pixelCoordinate.y];
+			}
+			function getMapTiles(point) {
+			  var numTiles = 1 << map.getZoom();
+			  var projection = new MercatorProjection();
+			  var worldCoordinate = projection.fromLatLngToPoint(point);
+			  var pixelCoordinate = new google.maps.Point(
+			      worldCoordinate.x * numTiles,
+			      worldCoordinate.y * numTiles);
+			  var tileCoordinate = new google.maps.Point(
+			      Math.floor(pixelCoordinate.x / TILE_SIZE),
+			      Math.floor(pixelCoordinate.y / TILE_SIZE));
+			  var offset_y = ~~(pixelCoordinate.y - (tileCoordinate.y*256)) ;
+			  var offset_x = ~~(pixelCoordinate.x - (tileCoordinate.x*256)) ;
+				return [tileCoordinate.x, tileCoordinate.y, offset_x, offset_y];
 			}
 
 
@@ -547,6 +573,9 @@
 			function draw() {
 /* 				console.log('drawing'); */
 				marker.setPosition(new google.maps.LatLng(this_location_lat, this_location_lon));
+				
+				
+				
 			}
 			function saveLocation() {
 				$.ajax({
@@ -557,7 +586,20 @@
 				        console.log('done');
 				    }
 				});
-				google.maps.event.trigger(map, 'resize');
+			}
+			function saveDamage() {
+				var stuff = getMapTiles(marker.getPosition());
+			
+				$.ajax({
+				    type: "GET",
+				    url: "save_damage.php?",
+				    data: {x_coord: stuff[0], y_coord: stuff[1], damage_x: stuff[2] , damage_y: stuff[3] },
+				    success: function(){
+				        console.log('saved damage');
+				        map.overlayMapTypes.clear();
+				        drawTiles();
+				    }
+				});
 			}
 			
 			

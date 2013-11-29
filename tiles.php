@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: image/png');
+header('Cache-Control: no-cache, must-revalidate'); 
 
 $username = "root";
 $password = "";
@@ -19,7 +20,7 @@ try {
     $statement = $dbh->prepare("SELECT damage_x, damage_y FROM map_tiles WHERE coord_x = ? AND coord_y = ?");
      if( $statement->execute(array($x_coord,$y_coord)) ) {
  		// create image
-		$targetImage = imagecreatetruecolor( 400, 400 );
+		$targetImage = imagecreatetruecolor( 256, 256 );
 		imagealphablending( $targetImage, false );
 		imagesavealpha( $targetImage, true );
 			
@@ -30,8 +31,8 @@ try {
 		imagecopyresampled( $targetImage, $srcImage, 
 		                    0, 0, 
 		                    0, 0, 
-		                    400, 400, 
-		                    400, 400 );  
+		                    256, 256, 
+		                    256, 256 );  
 			                    
      	while ($result = $statement->fetch(PDO::FETCH_ASSOC) ) {
      	
@@ -45,8 +46,8 @@ try {
 				imagecopyresampled( $targetImage, $srcImage, 
 				                    $result['damage_x'], $result['damage_y'], 
 				                    0, 0, 
-				                    100, 100, 
-				                    100, 100 );  	
+				                    30, 30, 
+				                    30, 30 );  	
 				imagealphablending( $targetImage, true );
 				imagesavealpha( $targetImage, true );		
      			

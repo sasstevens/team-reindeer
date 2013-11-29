@@ -4,9 +4,8 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-	<title>Color Thief</title>
+	<title>Robot thingy</title>
 
-  <meta name="description" content="Color Thief is a script for grabbing the color palette from an image. It uses Javacript and the canvas tag.">
   <meta name="author" content="Lokesh Dhakar">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -20,50 +19,214 @@
   <link rel="stylesheet" href="css/app.css">
 
 <script>
-	$( document ).ready(function() {
+$(document).ready(function () {
+
+	function colourLayers(colour_array) {
+		var colours = colour_array;
+
+		var body_colour = colours[0];
+		var head_colour = colours[1];
+		var leg_colour = colours[2];
+		var arm_colour = colours[3];
 		
 		
-	$('#try').click(function() {
-var colour = $('.swatch').attr('background-color');
+		var arm = ['flame', 'guns', 'squid'];
+		var body = ['records', 'robo', 'tramp', 'boxhead'];
+		var leg = ['gpigs', 'jets', 'robo'];
+		var head = ['boxhead', 'fish', 'flower', 'speaker'];
+		
+		var arm_id = Math.floor((Math.random()*2));
+		var body_id = Math.floor((Math.random()*3));
+		var leg_id = Math.floor((Math.random()*2));
+		var head_id = Math.floor((Math.random()*3));
+		
+		var arm_img_l = new Image();
+
+		arm_img_l.onload = function() {
+			Pixastic.process(arm_img_l, "coloradjust", {red:(arm_colour[0]/255),green:(arm_colour[1]/255),blue:(arm_colour[2]/255)});
+		}
+
+		$('#canvases').append(arm_img_l);
+		arm_img_l.src = 'img/sprites/arm_' + arm[arm_id] + '_L.png';
+		
+		
+		var leg_img = new Image();
+		leg_img.onload = function() {
+			Pixastic.process(leg_img, "coloradjust", {red:(leg_colour[0]/255),green:(leg_colour[1]/255),blue:(leg_colour[2]/255)});
+		}
+		$('#canvases').append(leg_img);
+		leg_img.src = 'img/sprites/legs_' + leg[leg_id] + '_1.png';
+		
+		
+		var body_img = new Image();
+		body_img.onload = function() {
+			Pixastic.process(body_img, "coloradjust", {red:(body_colour[0]/255),green:(body_colour[1]/255),blue:(body_colour[2]/255)});
+		}
+		$('#canvases').append(body_img);
+		body_img.src = 'img/sprites/body_' + body[body_id] + '.png';
+
+
+		var arm_img_r = new Image();
+		arm_img_r.onload = function() {
+			Pixastic.process(arm_img_r, "coloradjust", {red:(arm_colour[0]/255),green:(arm_colour[1]/255),blue:(arm_colour[2]/255)});
+		}
+		$('#canvases').append(arm_img_r);
+		arm_img_r.src = 'img/sprites/arm_' + arm[arm_id] + '_R.png';
+		
+		
+		var head_img = new Image();
+		head_img.onload = function() {
+			Pixastic.process(head_img, "coloradjust", {red:(head_colour[0]/255),green:(head_colour[1]/255),blue:(head_colour[2]/255)});
+		}
+		$('#canvases').append(head_img);
+		head_img.src = 'img/sprites/head_' + head[head_id] + '.png';
 		
 
-		var img = new Image();
-		img.onload = function() {
-			Pixastic.process(img, "coloradjust", {red:0.5,green:-1.0,blue:0});
-		}
-		document.body.appendChild(img);
-		img.src = $('#target-image').attr('src');
+		$('#target-image').hide();
+$('#create_my_robot').show(); 
 
-		});	
-			
-		$('#getimage').click(function() {
-			var canvas = $('canvas')[0];
-			
-			var myImage = canvas.getContext('2d');
-			console.log(myImage);
-			myImage = myImage['canvas']['__pixastic_org_image']['attributes']['0']['textContent'];
-			$('body').append('<img src="' + myImage + '" />');
+	}
+		
+	$('#create_my_robot').click(function(){
+	var main_canvas = $('#final_canvas');
+		var main_context = main_canvas[0].getContext('2d');
+
+	var i = 0;
+		$('#canvases canvas').each(function(){
+			main_context.drawImage($(this)[0],0,0);
+		
+			$(this).hide();
+			i++;
+
 		});
+		$('#create_my_robot').hide(); 
+		$('#save_my_robot').show(); 
+		
+		
+		$('#save_my_robot').click(function(){
+
+		var main_canvas = $('#final_canvas');
+		var pngUrl = main_canvas[0].toDataURL("image/png");
+
+		console.log(pngUrl);
+			$.ajax({
+			    type: "POST",
+			    url: "save_monster.php?",
+			    data: {text: 'sas', monster_image: pngUrl, lat: '50', lon: '20'},
+			    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+			    success: function(){
+			        console.log('done');
+			    }
+			});
 		});
-	</script>
-	<style>
-		.face {
-			border:2px solid #FFF;
-			display: none;
-		}
-	</style>
+	}); 
+
+	
+    var colorThief = new ColorThief();
+    var getColours = function($image ) {
+	    var image                    = $image[0];
+	    var color                    = colorThief.getColor(image);
+	    var palette                  = colorThief.getPalette(image, 3);
+	    return palette;
+  };
+
+  // Drag'n'drop demo
+  // Thanks to Nathan Spady (http://nspady.com/) who did the bulk of the drag'n'drop work.
+
+  // Setup the drag and drop behavior if supported
+  if (Modernizr.draganddrop && !!window.FileReader && !isMobile()) {
+
+    $('#drag-drop').show();
+    var $dropZone = $('#drop-zone');
+    var handleDragEnter = function(event){
+      $dropZone.addClass('dragging');
+      return false;
+    };
+    var handleDragLeave = function(event){
+      $dropZone.removeClass('dragging');
+      return false;
+    };
+    var handleDragOver = function(event){
+      return false;
+    };
+    var handleDrop = function(event){
+      $dropZone.removeClass('dragging');
+      handleFiles(event.originalEvent.dataTransfer.files);
+      return false;
+    };
+    $dropZone
+      .on('dragenter', handleDragEnter)
+      .on('dragleave', handleDragLeave)
+      .on('dragover', handleDragOver)
+      .on('drop', handleDrop);
+  }
+
+  function handleFiles(files) {
+    var $draggedImages = $('#dragged-images');
+    var imageType      = /image.*/;
+    var fileCount      = files.length;
+
+    for (var i = 0; i < fileCount; i++) {
+      var file = files[i];
+
+      if (file.type.match(imageType)) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            imageInfo = { images: [
+                {'class': 'dropped-image', file: event.target.result}
+              ]};
+
+            var imageSectionHTML = Mustache.to_html($('#image-section-template').html(), imageInfo);
+            $draggedImages.prepend(imageSectionHTML);
+
+           // var $imageSection = $draggedImages.find('.image-section').first();
+            var $image        = $('#target-image');
+
+            // Must wait for image to load in DOM, not just load from FileReader
+            $image.on('load', function() {
+	             var colour_array = getColours($image);
+	             colourLayers(colour_array);
+            });
+          };
+        reader.readAsDataURL(file);
+      } else {
+        alert('File must be a supported image type.');
+      }
+    }
+  }
+
+  // This is not good practice. :-P
+  function isMobile(){
+    // if we want a more complete list use this: http://detectmobilebrowsers.com/
+    // str.test() is more efficent than str.match()
+    // remember str.test is case sensitive
+    var isMobile = (/iphone|ipod|ipad|android|ie|blackberry|fennec/).test
+         (navigator.userAgent.toLowerCase());
+    return isMobile;
+}
+
+	$('#drop-zone').on('drop', function(){
+		$('#drop-zone').hide();
+		
+	});
+
+});
+
+</script>
+
 
 </head>
 <body>
 
 <div class="wrapper">
-
+ <a href="#" id="create_my_robot" style="display:none;">Create My Robot</a>  <a href="#" id="save_my_robot" style="display:none;">Save My Robot</a>
   <section id="drag-drop" class="drag-drop">
     <div id="drop-zone" class="drop-zone">
       <div class="drop-zone-label default-label">Drag an image here</div>
       <div class="drop-zone-label dragging-label">Drop it here!</div>
     </div>
     <div id="dragged-images" class="dragged-images"></div>
+   
   </section>
 
 </div>
@@ -78,33 +241,42 @@ var colour = $('.swatch').attr('background-color');
         <span class="no-touch-label">Click</span>
         <span class="touch-label">Tap</span>
       </button>
-      <img class="target-image" id="target-image" src="{{file}}" />
-      <div class="face"></div>
-      
+      <img class="target-image" id="target-image" src="{{file}}" /> 
+      <div id="canvases">
+	      
+      </div>
+      <canvas width="600px" height="600px" id="final_canvas"></canvas>
+       <canvas width="600px" height="600px" id="final_canvas_two"></canvas>
     </div>
-    <div class="color-thief-output"></div>
+     <div class="color-thief-output"></div> 
   </div>
   {{/images}}
 </script>
 
 <script id="color-thief-output-template" type="text/x-mustache">
+
   <div class="function get-color">
     <h3 class="function-title">Dominant Color</h3>
+
     <div class="swatches">
       <div class="swatch" style="background-color: rgb({{color.0}}, {{color.1}}, {{color.2}})"></div>
     </div>
+
     <div class="function-code">
       <code>colorThief.getColor(image):{{elapsedTimeForGetColor}}ms</code>
     </div>
   </div>
-  <div class="function get-palette">
+
+<div class="function get-palette">
     <h3 class="function-title">Palette</h3>
     <div class="function-output">
+
       <div class="swatches">
         {{#palette}}
           <div class="swatch" style="background-color: rgb({{0}}, {{1}}, {{2}})"></div>
         {{/palette}}
       </div>
+
     </div>
     <div class="function-code">
       <code>colorThief.getPalette(image):{{elapsedTimeForGetPalette}}ms</code>
@@ -113,7 +285,7 @@ var colour = $('.swatch').attr('background-color');
 </script>
 
 
-<script src="demo.js"></script>
+
 
 
 </body>
